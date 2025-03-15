@@ -4,7 +4,7 @@ import inventory.model.*;
 import inventory.repository.InventoryRepository;
 import javafx.collections.ObservableList;
 
-public class InventoryService {
+public class InventoryService implements Service{
 
     private InventoryRepository repo;
     public InventoryService(InventoryRepository repo){

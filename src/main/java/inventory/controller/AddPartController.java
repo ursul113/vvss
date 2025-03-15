@@ -17,23 +17,28 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+
 public class AddPartController implements Initializable, Controller {
+
+    private static final Logger logger = LogManager.getLogger(AddPartController.class);
 
     // Declare fields
     private Stage stage;
     private Parent scene;
     private boolean isOutsourced = true;
     private String errorMessage = new String();
-    private int partId;
 
     private InventoryService service;
-    
+
     @FXML
     private RadioButton inhouseRBtn;
 
     @FXML
     private RadioButton outsourcedRBtn;
-    
+
     @FXML
     private Label addPartDynamicLbl;
 
@@ -48,7 +53,7 @@ public class AddPartController implements Initializable, Controller {
 
     @FXML
     private TextField priceTxt;
-    
+
     @FXML
     private TextField addPartDynamicTxt;
 
@@ -105,18 +110,20 @@ public class AddPartController implements Initializable, Controller {
         alert.setHeaderText("Confirm Cancelation");
         alert.setContentText("Are you sure you want to cancel adding part?");
         Optional<ButtonType> result = alert.showAndWait();
-        if(result.get() == ButtonType.OK) {
-            System.out.println("Ok selected. Part addition canceled.");
-            displayScene(event, "/fxml/MainScreen.fxml");
-        } else {
-            System.out.println("Cancel clicked.");
+        if(result.isPresent()){
+            if(result.get() == ButtonType.OK) {
+                logger.info("Part addition canceled.");
+                displayScene(event, "/fxml/MainScreen.fxml");
+            } else {
+                logger.info("Cancel clicked.");
+            }
         }
     }
 
     /**
      * If in-house radio button is selected set isOutsourced boolean
      * to false and modify dynamic label to Machine ID
-     * @param event 
+     * @param event
      */
     @FXML
     void handleInhouseRBtn(ActionEvent event) {
@@ -127,7 +134,7 @@ public class AddPartController implements Initializable, Controller {
     /**
      * If outsourced radio button is selected set isOutsourced boolean
      * to true and modify dynamic label to Company Name
-     * @param event 
+     * @param event
      */
     @FXML
     void handleOutsourcedRBtn(ActionEvent event) {
@@ -150,27 +157,27 @@ public class AddPartController implements Initializable, Controller {
         String max = maxTxt.getText();
         String partDynamicValue = addPartDynamicTxt.getText();
         errorMessage = "";
-        
+
         try {
             errorMessage = Part.isValidPart(name, Double.parseDouble(price), Integer.parseInt(inStock), Integer.parseInt(min), Integer.parseInt(max), errorMessage);
-            if(errorMessage.length() > 0) {
+            if(!errorMessage.isEmpty()) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Error Adding Part!");
                 alert.setHeaderText("Error!");
                 alert.setContentText(errorMessage);
                 alert.showAndWait();
             } else {
-               if(isOutsourced == true) {
+                if(isOutsourced) {
                     service.addOutsourcePart(name, Double.parseDouble(price), Integer.parseInt(inStock), Integer.parseInt(min), Integer.parseInt(max), partDynamicValue);
                 } else {
                     service.addInhousePart(name, Double.parseDouble(price), Integer.parseInt(inStock), Integer.parseInt(min), Integer.parseInt(max), Integer.parseInt(partDynamicValue));
                 }
                 displayScene(event, "/fxml/MainScreen.fxml");
             }
-            
+
         } catch (NumberFormatException e) {
-            System.out.println("Form contains blank field.");
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            logger.error("Form contains blank field.");
+            Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error Adding Part!");
             alert.setHeaderText("Error!");
             alert.setContentText("Form contains blank field.");
