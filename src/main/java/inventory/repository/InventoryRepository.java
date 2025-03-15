@@ -7,9 +7,11 @@ import javafx.collections.ObservableList;
 import java.io.*;
 import java.util.StringTokenizer;
 
-public class InventoryRepository {
+public class InventoryRepository implements Repository {
 
 	private static String filename = "data/items.txt";
+	//private static String filename = "C:\\Users\\pc\\IdeaProjects\\VVSS\\02_Inventory\\02_Inventory\\data\\items.txt";
+
 	private Inventory inventory;
 	public InventoryRepository(){
 		this.inventory=new Inventory();
@@ -78,8 +80,7 @@ public class InventoryRepository {
 		try {
 			br = new BufferedReader(new FileReader(file));
 			String line = null;
-			while((line=br.readLine())!=null)
-			{
+			while((line=br.readLine())!=null){
 				Product product=getProductFromString(line);
 				if (product!=null)
 					listP.add(product);
