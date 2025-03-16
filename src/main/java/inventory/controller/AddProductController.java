@@ -29,10 +29,10 @@ public class AddProductController implements Initializable, Controller {
     private static final Logger logger = LogManager.getLogger(AddProductController.class);
 
     // Declare fields
-    private Stage stage;
-    private Parent scene;
+
+
     private ObservableList<Part> addParts = FXCollections.observableArrayList();
-    private String errorMessage = new String();
+
 
     private InventoryService service;
 
@@ -87,9 +87,6 @@ public class AddProductController implements Initializable, Controller {
     @FXML
     private TableColumn<Part, Integer> deleteProductPriceCol;
 
-    public AddProductController()throws UnsupportedOperationException{
-        throw new UnsupportedOperationException();
-    }
 
     public void setService(InventoryService service){
         this.service=service;
@@ -116,9 +113,10 @@ public class AddProductController implements Initializable, Controller {
      */
     @FXML
     private void displayScene(ActionEvent event, String source) throws IOException {
+        Parent scene;
+        Stage stage;
         stage = (Stage)((Button)event.getSource()).getScene().getWindow();
         FXMLLoader loader= new FXMLLoader(getClass().getResource(source));
-        //scene = FXMLLoader.load(getClass().getResource(source));
         scene = loader.load();
         Controller ctrl=loader.getController();
         ctrl.setService(service);
@@ -206,6 +204,7 @@ public class AddProductController implements Initializable, Controller {
      */
     @FXML
     void handleSaveProduct(ActionEvent event) throws IOException {
+        String errorMessage = "";
         String name = nameTxt.getText();
         String price = priceTxt.getText();
         String inStock = inventoryTxt.getText();

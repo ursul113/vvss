@@ -26,10 +26,10 @@ public class AddPartController implements Initializable, Controller {
     private static final Logger logger = LogManager.getLogger(AddPartController.class);
 
     // Declare fields
-    private Stage stage;
-    private Parent scene;
+
+
     private boolean isOutsourced = true;
-    private String errorMessage = new String();
+
 
     private InventoryService service;
 
@@ -63,8 +63,6 @@ public class AddPartController implements Initializable, Controller {
     @FXML
     private TextField minTxt;
 
-    public AddPartController(){}
-
     @Override
     public void setService(InventoryService service){
 
@@ -86,9 +84,10 @@ public class AddPartController implements Initializable, Controller {
      */
     @FXML
     private void displayScene(ActionEvent event, String source) throws IOException {
+        Parent scene;
+        Stage stage;
         stage = (Stage)((Button)event.getSource()).getScene().getWindow();
         FXMLLoader loader= new FXMLLoader(getClass().getResource(source));
-        //scene = FXMLLoader.load(getClass().getResource(source));
         scene = loader.load();
         Controller ctrl=loader.getController();
         ctrl.setService(service);
@@ -150,6 +149,7 @@ public class AddPartController implements Initializable, Controller {
      */
     @FXML
     void handleAddPartSave(ActionEvent event) throws IOException {
+        String errorMessage = "";
         String name = nameTxt.getText();
         String price = priceTxt.getText();
         String inStock = inventoryTxt.getText();
