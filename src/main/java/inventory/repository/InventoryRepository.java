@@ -1,14 +1,15 @@
 package inventory.repository;
-
 import inventory.model.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.util.StringTokenizer;
 
 public class InventoryRepository implements Repository {
 
+	private static final Logger logger = LogManager.getLogger(InventoryRepository.class);
 	private static String filename = "data/items.txt";
 	//private static String filename = "C:\\Users\\pc\\IdeaProjects\\VVSS\\02_Inventory\\02_Inventory\\data\\items.txt";
 
@@ -20,21 +21,15 @@ public class InventoryRepository implements Repository {
 	}
 
 	public void readParts(){
-		//ClassLoader classLoader = InventoryRepository.class.getClassLoader();
 		File file = new File(filename);
 		ObservableList<Part> listP = FXCollections.observableArrayList();
-		BufferedReader br = null;
-		try {
-			br = new BufferedReader(new FileReader(file));
+		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 			String line = null;
 			while((line=br.readLine())!=null){
 				Part part=getPartFromString(line);
 				if (part!=null)
 					listP.add(part);
 			}
-			br.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -72,23 +67,17 @@ public class InventoryRepository implements Repository {
 	}
 
 	public void readProducts(){
-		//ClassLoader classLoader = InventoryRepository.class.getClassLoader();
 		File file = new File(filename);
-
 		ObservableList<Product> listP = FXCollections.observableArrayList();
-		BufferedReader br = null;
-		try {
-			br = new BufferedReader(new FileReader(file));
-			String line = null;
-			while((line=br.readLine())!=null){
-				Product product=getProductFromString(line);
-				if (product!=null)
+		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				Product product = getProductFromString(line);
+				if (product != null) {
 					listP.add(product);
+				}
 			}
-			br.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		}catch (IOException e) {
 			e.printStackTrace();
 		}
 		inventory.setProducts(listP);
@@ -124,36 +113,30 @@ public class InventoryRepository implements Repository {
 	}
 
 	public void writeAll() {
-
-		//ClassLoader classLoader = InventoryRepository.class.getClassLoader();
 		File file = new File(filename);
-
-		BufferedWriter bw = null;
 		ObservableList<Part> parts=inventory.getAllParts();
 		ObservableList<Product> products=inventory.getProducts();
 
-		try {
-			bw = new BufferedWriter(new FileWriter(file));
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))){
 			for (Part p:parts) {
-				System.out.println(p.toString());
+				logger.info(p);
 				bw.write(p.toString());
 				bw.newLine();
 			}
 
 			for (Product pr:products) {
-				String line=pr.toString()+",";
+				StringBuilder line= new StringBuilder(pr.toString() + ",");
 				ObservableList<Part> list= pr.getAssociatedParts();
 				int index=0;
 				while(index<list.size()-1){
-					line=line+list.get(index).getPartId()+":";
+					line.append(list.get(index).getPartId()).append(":");
 					index++;
 				}
 				if (index==list.size()-1)
-					line=line+list.get(index).getPartId();
-				bw.write(line);
+					line.append(list.get(index).getPartId());
+				bw.write(line.toString());
 				bw.newLine();
 			}
-			bw.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
