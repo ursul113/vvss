@@ -1,35 +1,46 @@
 package inventory.repository;
+
+
 import inventory.model.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
 import java.io.*;
 import java.util.StringTokenizer;
 
-public class InventoryRepository implements Repository {
+public class InventoryRepository {
 
-	private static final Logger logger = LogManager.getLogger(InventoryRepository.class);
 	private static String filename = "data/items.txt";
-	//private static String filename = "C:\\Users\\pc\\IdeaProjects\\VVSS\\02_Inventory\\02_Inventory\\data\\items.txt";
-
 	private Inventory inventory;
+
 	public InventoryRepository(){
 		this.inventory=new Inventory();
 		readParts();
 		readProducts();
 	}
 
+	public InventoryRepository(Inventory inventory){
+		this.inventory=inventory;
+		readParts();
+		readProducts();
+	}
+
 	public void readParts(){
+		//ClassLoader classLoader = InventoryRepository.class.getClassLoader();
 		File file = new File(filename);
 		ObservableList<Part> listP = FXCollections.observableArrayList();
-		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+		BufferedReader br = null;
+		try {
+			br = new BufferedReader(new FileReader(file));
 			String line = null;
 			while((line=br.readLine())!=null){
 				Part part=getPartFromString(line);
 				if (part!=null)
 					listP.add(part);
 			}
+			br.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -67,17 +78,23 @@ public class InventoryRepository implements Repository {
 	}
 
 	public void readProducts(){
+		//ClassLoader classLoader = InventoryRepository.class.getClassLoader();
 		File file = new File(filename);
+
 		ObservableList<Product> listP = FXCollections.observableArrayList();
-		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-			String line;
-			while ((line = br.readLine()) != null) {
-				Product product = getProductFromString(line);
-				if (product != null) {
+		BufferedReader br = null;
+		try {
+			br = new BufferedReader(new FileReader(file));
+			String line = null;
+			while((line=br.readLine())!=null){
+				Product product=getProductFromString(line);
+				if (product!=null)
 					listP.add(product);
-				}
 			}
-		}catch (IOException e) {
+			br.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		inventory.setProducts(listP);
@@ -113,38 +130,46 @@ public class InventoryRepository implements Repository {
 	}
 
 	public void writeAll() {
+
+		//ClassLoader classLoader = InventoryRepository.class.getClassLoader();
 		File file = new File(filename);
+
+		BufferedWriter bw = null;
 		ObservableList<Part> parts=inventory.getAllParts();
 		ObservableList<Product> products=inventory.getProducts();
 
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))){
+		try {
+			bw = new BufferedWriter(new FileWriter(file));
 			for (Part p:parts) {
-				logger.info(p);
+				System.out.println(p.toString());
 				bw.write(p.toString());
 				bw.newLine();
 			}
 
 			for (Product pr:products) {
-				StringBuilder line= new StringBuilder(pr.toString() + ",");
+				String line=pr.toString()+",";
 				ObservableList<Part> list= pr.getAssociatedParts();
 				int index=0;
 				while(index<list.size()-1){
-					line.append(list.get(index).getPartId()).append(":");
+					line=line+list.get(index).getPartId()+":";
 					index++;
 				}
 				if (index==list.size()-1)
-					line.append(list.get(index).getPartId());
-				bw.write(line.toString());
+					line=line+list.get(index).getPartId();
+				bw.write(line);
 				bw.newLine();
 			}
+			bw.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	public void addPart(Part part){
-		inventory.addPart(part);
-		writeAll();
+		if (isValidPart(part).equals("")) {
+			inventory.addPart(part);
+			writeAll();
+		}
 	}
 
 	public void addProduct(Product product){
@@ -201,5 +226,31 @@ public class InventoryRepository implements Repository {
 
 	public void setInventory(Inventory inventory){
 		this.inventory=inventory;
+	}
+
+	public static String isValidPart(Part part) {
+		String errorMessage = "";
+		if (part.getPartId() < 0) {
+			errorMessage += "ID must be greater or equal with 0. ";
+		}
+		if(part.getName().equals("")) {
+			errorMessage += "A name has not been entered. ";
+		}
+		if(part.getPrice() < 0.01) {
+			errorMessage += "The price must be greater than 0. ";
+		}
+		if(part.getInStock() < 1) {
+			errorMessage += "Inventory level must be greater than 0. ";
+		}
+		if(part.getMin() > part.getMax()) {
+			errorMessage += "The Min value must be less than the Max value. ";
+		}
+		if(part.getInStock() < part.getMin()) {
+			errorMessage += "Inventory level is lower than minimum value. ";
+		}
+		if(part.getInStock() > part.getMax()) {
+			errorMessage += "Inventory level is higher than the maximum value. ";
+		}
+		return errorMessage;
 	}
 }
