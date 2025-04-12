@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class InventoryTest {
     private Part part;
-    private InventoryRepository repo = new InventoryRepository();;
+    private InventoryRepository repo = new InventoryRepository();
 
     @Order(1)
     @RepeatedTest(value = 5, name = "{displayName} {currentRepetition}/{totalRepetitions}")
