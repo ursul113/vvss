@@ -147,7 +147,7 @@
                 <version>2.22.1</version>
 <!--        <version>3.0.0</version>-->
         <configuration>
-          <!--                <failIfNoTests>false</failIfNoTests>-->
+          <failIfNoTests>false</failIfNoTests>
         </configuration>
       </plugin>
       <plugin>
