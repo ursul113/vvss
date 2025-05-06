@@ -143,7 +143,6 @@
         <version>3.0.0</version>
         <configuration>
           <!--                <failIfNoTests>false</failIfNoTests>-->
-                 <release>8</release>
         </configuration>
       </plugin>
       <plugin>
