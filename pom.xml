@@ -135,7 +135,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.0</version>
+        <version>3.11.0</version>
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -143,6 +143,7 @@
         <version>3.0.0</version>
         <configuration>
           <!--                <failIfNoTests>false</failIfNoTests>-->
+                 <release>8</release>
         </configuration>
       </plugin>
       <plugin>
